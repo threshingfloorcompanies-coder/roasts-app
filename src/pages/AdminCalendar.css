@@ -186,6 +186,62 @@
   font-size: 1.5rem;
 }
 
+.copy-section {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: var(--light-cream);
+  border-radius: 12px;
+}
+
+.copy-section label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.copy-controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.copy-select {
+  flex: 1;
+  padding: 0.75rem;
+  border: 2px solid var(--cream);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  background: var(--white);
+  color: var(--text-dark);
+  cursor: pointer;
+}
+
+.copy-select:focus {
+  outline: none;
+  border-color: var(--accent-gold);
+}
+
+.copy-btn {
+  padding: 0.75rem 1.5rem;
+  background: var(--accent-gold);
+  color: var(--white);
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+
+.copy-btn:hover:not(:disabled) {
+  background: #c19563;
+  transform: translateY(-2px);
+}
+
+.copy-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .timeslot-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

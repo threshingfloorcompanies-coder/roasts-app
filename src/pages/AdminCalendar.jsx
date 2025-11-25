@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useOrder } from '../context/OrderContext';
+import Modal from '../components/Modal';
+import Toast from '../components/Toast';
 import './AdminCalendar.css';
 
 function AdminCalendar() {
@@ -7,6 +9,9 @@ function AdminCalendar() {
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTimeSlots, setSelectedTimeSlots] = useState([]);
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [modal, setModal] = useState({ isOpen: false, title: '', message: '', onConfirm: null, onCancel: null, type: 'alert' });
+  const [toast, setToast] = useState({ show: false, message: '' });
+  const [copyFromDate, setCopyFromDate] = useState(null);
 
   const timeSlots = [
     '9:00 AM', '10:00 AM', '11:00 AM', '12:00 PM',
@@ -16,6 +21,35 @@ function AdminCalendar() {
   useEffect(() => {
     fetchAvailability();
   }, []);
+
+  const showAlert = (title, message) => {
+    setModal({
+      isOpen: true,
+      title,
+      message,
+      onConfirm: () => setModal({ ...modal, isOpen: false }),
+      onCancel: null,
+      type: 'alert'
+    });
+  };
+
+  const showConfirm = (title, message, onConfirm) => {
+    setModal({
+      isOpen: true,
+      title,
+      message,
+      onConfirm: () => {
+        setModal({ ...modal, isOpen: false });
+        onConfirm();
+      },
+      onCancel: () => setModal({ ...modal, isOpen: false }),
+      type: 'confirm'
+    });
+  };
+
+  const showToast = (message) => {
+    setToast({ show: true, message });
+  };
 
   const getDaysInMonth = (date) => {
     const year = date.getFullYear();
@@ -73,7 +107,12 @@ function AdminCalendar() {
 
   const handleSaveTimeSlots = async () => {
     if (!selectedDate) {
-      alert('Please select a date first');
+      showAlert('No Date Selected', 'Please select a date first');
+      return;
+    }
+
+    if (selectedTimeSlots.length === 0) {
+      showAlert('No Time Slots', 'Please select at least one time slot');
       return;
     }
 
@@ -84,8 +123,10 @@ function AdminCalendar() {
         await removeAvailableDate(slot.id);
       }
 
-      // Add new slots
-      for (const time of selectedTimeSlots) {
+      // Add new slots (only unique ones)
+      const uniqueTimeSlots = [...new Set(selectedTimeSlots)];
+
+      for (const time of uniqueTimeSlots) {
         const [timePart, meridiem] = time.split(' ');
         let [hours, minutes] = timePart.split(':').map(Number);
 
@@ -101,12 +142,13 @@ function AdminCalendar() {
         await addAvailableDate(dateTime.toISOString());
       }
 
-      alert('Time slots saved successfully!');
-      fetchAvailability();
+      showToast('Time slots saved successfully!');
+      await fetchAvailability();
       setSelectedDate(null);
       setSelectedTimeSlots([]);
+      setCopyFromDate(null);
     } catch (error) {
-      alert('Failed to save time slots');
+      showAlert('Error', 'Failed to save time slots');
       console.error(error);
     }
   };
@@ -114,19 +156,46 @@ function AdminCalendar() {
   const handleClearDate = async () => {
     if (!selectedDate) return;
 
-    if (window.confirm('Remove all time slots for this date?')) {
-      try {
-        const existingSlots = getAvailabilityForDate(selectedDate);
-        for (const slot of existingSlots) {
-          await removeAvailableDate(slot.id);
+    showConfirm(
+      'Clear Time Slots',
+      'Remove all time slots for this date?',
+      async () => {
+        try {
+          const existingSlots = getAvailabilityForDate(selectedDate);
+          for (const slot of existingSlots) {
+            await removeAvailableDate(slot.id);
+          }
+          setSelectedTimeSlots([]);
+          showToast('Date cleared successfully!');
+          await fetchAvailability();
+        } catch (error) {
+          showAlert('Error', 'Failed to clear date');
         }
-        setSelectedTimeSlots([]);
-        alert('Date cleared successfully!');
-        fetchAvailability();
-      } catch (error) {
-        alert('Failed to clear date');
       }
-    }
+    );
+  };
+
+  const handleCopyFromDate = () => {
+    if (!copyFromDate || !selectedDate) return;
+
+    const slotsFromCopyDate = getAvailabilityForDate(copyFromDate);
+    const existingTimes = slotsFromCopyDate.map(slot => {
+      const date = new Date(slot.date);
+      return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    });
+
+    setSelectedTimeSlots(existingTimes);
+    showToast(`Copied ${existingTimes.length} time slots from ${copyFromDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`);
+  };
+
+  const getDatesWithSlots = () => {
+    const dates = new Set();
+    availability.forEach(slot => {
+      const date = new Date(slot.date);
+      date.setHours(0, 0, 0, 0);
+      dates.add(date.toISOString());
+    });
+    return Array.from(dates).map(dateStr => new Date(dateStr)).sort((a, b) => b - a);
   };
 
   const renderCalendar = () => {
@@ -227,6 +296,40 @@ function AdminCalendar() {
 
           {selectedDate ? (
             <>
+              {getDatesWithSlots().length > 0 && (
+                <div className="copy-section">
+                  <label htmlFor="copyFrom">Copy from previous date:</label>
+                  <div className="copy-controls">
+                    <select
+                      id="copyFrom"
+                      value={copyFromDate ? copyFromDate.toISOString() : ''}
+                      onChange={(e) => setCopyFromDate(e.target.value ? new Date(e.target.value) : null)}
+                      className="copy-select"
+                    >
+                      <option value="">Select a date...</option>
+                      {getDatesWithSlots()
+                        .filter(date => date.toDateString() !== selectedDate.toDateString())
+                        .map(date => {
+                          const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                          const slots = getAvailabilityForDate(date);
+                          return (
+                            <option key={date.toISOString()} value={date.toISOString()}>
+                              {dateStr} ({slots.length} slots)
+                            </option>
+                          );
+                        })}
+                    </select>
+                    <button
+                      onClick={handleCopyFromDate}
+                      disabled={!copyFromDate}
+                      className="copy-btn"
+                    >
+                      Copy
+                    </button>
+                  </div>
+                </div>
+              )}
+
               <div className="timeslot-grid">
                 {timeSlots.map(time => (
                   <button
@@ -253,6 +356,19 @@ function AdminCalendar() {
           )}
         </div>
       </div>
+
+      <Modal
+        isOpen={modal.isOpen}
+        title={modal.title}
+        message={modal.message}
+        onConfirm={modal.onConfirm}
+        onCancel={modal.onCancel}
+        type={modal.type}
+      />
+
+      {toast.show && (
+        <Toast message={toast.message} onClose={() => setToast({ show: false, message: '' })} />
+      )}
     </div>
   );
 }

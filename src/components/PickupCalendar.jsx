@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
+import { useOrder } from '../context/OrderContext';
 import './PickupCalendar.css';
 
 function PickupCalendar({ availability, selectedDateTime, onSelectDateTime }) {
+  const { orders } = useOrder();
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(null);
   const [availableTimesForDate, setAvailableTimesForDate] = useState([]);
@@ -25,10 +27,23 @@ function PickupCalendar({ availability, selectedDateTime, onSelectDateTime }) {
     const dateKey = formatDateKey(date);
     const oneHourFromNow = new Date(Date.now() + 60 * 60 * 1000);
 
-    return availability.filter(slot => {
-      const slotDate = new Date(slot.date);
-      return slot.date.startsWith(dateKey) && slotDate >= oneHourFromNow;
-    });
+    // Get booked time slots from orders
+    const bookedSlots = orders
+      .filter(order => order.pickupDate)
+      .map(order => order.pickupDate);
+
+    // Filter out past slots and booked slots, then sort chronologically
+    return availability
+      .filter(slot => {
+        const slotDate = new Date(slot.date);
+        // Check if slot is for this date, in the future, and not already booked
+        return (
+          slot.date.startsWith(dateKey) &&
+          slotDate >= oneHourFromNow &&
+          !bookedSlots.includes(slot.date)
+        );
+      })
+      .sort((a, b) => new Date(a.date) - new Date(b.date));
   };
 
   const isDayAvailable = (date) => {
