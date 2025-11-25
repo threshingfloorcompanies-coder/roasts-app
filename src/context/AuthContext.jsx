@@ -28,9 +28,15 @@ export const AuthProvider = ({ children }) => {
           name: firebaseUser.displayName || firebaseUser.email.split('@')[0]
         });
         setIsAdmin(firebaseUser.email === ADMIN_EMAIL);
+        // Set current user ID for cart tracking
+        localStorage.setItem('currentUserId', firebaseUser.uid);
       } else {
         setUser(null);
         setIsAdmin(false);
+        // Clear user ID on logout
+        localStorage.removeItem('currentUserId');
+        localStorage.removeItem('cart');
+        localStorage.removeItem('cartUserId');
       }
       setLoading(false);
     });

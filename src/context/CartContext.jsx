@@ -13,11 +13,25 @@ export const useCart = () => {
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState(() => {
     const saved = localStorage.getItem('cart');
+    const savedUserId = localStorage.getItem('cartUserId');
+    const currentUserId = localStorage.getItem('currentUserId');
+
+    // Clear cart if user changed
+    if (savedUserId !== currentUserId) {
+      localStorage.removeItem('cart');
+      localStorage.setItem('cartUserId', currentUserId || '');
+      return [];
+    }
+
     return saved ? JSON.parse(saved) : [];
   });
 
   useEffect(() => {
     localStorage.setItem('cart', JSON.stringify(cartItems));
+    const currentUserId = localStorage.getItem('currentUserId');
+    if (currentUserId) {
+      localStorage.setItem('cartUserId', currentUserId);
+    }
   }, [cartItems]);
 
   const addToCart = (coffee) => {
@@ -52,6 +66,8 @@ export const CartProvider = ({ children }) => {
 
   const clearCart = () => {
     setCartItems([]);
+    localStorage.removeItem('cart');
+    localStorage.removeItem('cartUserId');
   };
 
   const getTotalPrice = () => {

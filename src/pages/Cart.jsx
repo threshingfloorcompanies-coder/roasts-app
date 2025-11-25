@@ -184,32 +184,35 @@ function Cart() {
           {deliveryMethod === 'pickup' && (
             <div className="checkout-group">
               <h3>Pickup Date & Time</h3>
-              <select
-                value={pickupDate}
-                onChange={(e) => setPickupDate(e.target.value)}
-                className="date-input"
-              >
-                <option value="">Select a pickup time...</option>
-                {availability
-                  .filter(slot => new Date(slot.date) > new Date())
-                  .sort((a, b) => new Date(a.date) - new Date(b.date))
-                  .map(slot => (
-                    <option key={slot.id} value={slot.date}>
-                      {new Date(slot.date).toLocaleDateString('en-US', {
-                        weekday: 'short',
-                        month: 'short',
-                        day: 'numeric',
-                        year: 'numeric'
-                      })} at {new Date(slot.date).toLocaleTimeString('en-US', {
-                        hour: 'numeric',
-                        minute: '2-digit',
-                        hour12: true
-                      })}
-                    </option>
-                  ))}
-              </select>
-              {availability.filter(slot => new Date(slot.date) > new Date()).length === 0 && (
-                <p className="no-availability">No pickup times available. Please check back later.</p>
+              {availability.length === 0 ? (
+                <p className="no-availability">Loading pickup times...</p>
+              ) : availability.filter(slot => new Date(slot.date) > new Date()).length === 0 ? (
+                <p className="no-availability">No pickup times available. Please check back later or contact us.</p>
+              ) : (
+                <select
+                  value={pickupDate}
+                  onChange={(e) => setPickupDate(e.target.value)}
+                  className="date-input"
+                >
+                  <option value="">Select a pickup time...</option>
+                  {availability
+                    .filter(slot => new Date(slot.date) > new Date())
+                    .sort((a, b) => new Date(a.date) - new Date(b.date))
+                    .map(slot => (
+                      <option key={slot.id} value={slot.date}>
+                        {new Date(slot.date).toLocaleDateString('en-US', {
+                          weekday: 'short',
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric'
+                        })} at {new Date(slot.date).toLocaleTimeString('en-US', {
+                          hour: 'numeric',
+                          minute: '2-digit',
+                          hour12: true
+                        })}
+                      </option>
+                    ))}
+                </select>
               )}
             </div>
           )}
