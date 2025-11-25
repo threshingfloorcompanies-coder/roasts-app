@@ -21,11 +21,13 @@ function Navbar() {
           <img src="/images/ThreshingFloorLogo11.25.png" alt="Threshing Floor Roasting Co." className="logo-image" />
         </Link>
         <div className="navbar-links">
-          <Link to="/" className="nav-link">Home</Link>
+          <Link to="/" className="nav-link">
+            <span className="nav-icon">🏠</span> Home
+          </Link>
           {!isAdmin && (
             <>
               <Link to="/cart" className="nav-link cart-link">
-                Cart
+                <span className="nav-icon">🛒</span> Cart
                 {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
               </Link>
             </>
