@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useCoffee } from '../context/CoffeeContext';
 import { storage } from '../firebase/config';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import Modal from './Modal';
 import './CoffeeForm.css';
 
 function CoffeeForm({ coffee, onClose }) {
@@ -15,6 +16,7 @@ function CoffeeForm({ coffee, onClose }) {
   });
   const [imageFile, setImageFile] = useState(null);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [modal, setModal] = useState({ isOpen: false, title: '', message: '', onConfirm: null });
 
   useEffect(() => {
     if (coffee) {
@@ -48,6 +50,15 @@ function CoffeeForm({ coffee, onClose }) {
     }
   };
 
+  const showAlert = (title, message) => {
+    setModal({
+      isOpen: true,
+      title,
+      message,
+      onConfirm: () => setModal({ ...modal, isOpen: false })
+    });
+  };
+
   const uploadImage = async () => {
     if (!imageFile) return formData.image;
 
@@ -61,7 +72,7 @@ function CoffeeForm({ coffee, onClose }) {
       return downloadURL;
     } catch (error) {
       console.error('Error uploading image:', error);
-      alert('Failed to upload image. Please try again.');
+      showAlert('Upload Failed', 'Failed to upload image. Please make sure Firebase Storage is enabled in your Firebase Console, or use an image URL instead.');
       throw error;
     } finally {
       setUploadingImage(false);
@@ -191,6 +202,14 @@ function CoffeeForm({ coffee, onClose }) {
           </div>
         </form>
       </div>
+
+      <Modal
+        isOpen={modal.isOpen}
+        title={modal.title}
+        message={modal.message}
+        onConfirm={modal.onConfirm}
+        type="alert"
+      />
     </div>
   );
 }

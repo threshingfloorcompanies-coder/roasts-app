@@ -6,10 +6,9 @@ import './CoffeeCard.css';
 
 function CoffeeCard({ coffee }) {
   const { addToCart } = useCart();
-  const { currentUser } = useAuth();
+  const { isAdmin } = useAuth();
   const [showToast, setShowToast] = useState(false);
   const isOutOfStock = !coffee.quantity || coffee.quantity === 0;
-  const isAdmin = currentUser?.email === 'admin@admin.com';
 
   const handleAddToCart = () => {
     if (!isOutOfStock) {
