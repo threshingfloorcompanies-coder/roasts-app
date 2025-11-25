@@ -41,7 +41,6 @@ function Login() {
         <h2>Welcome Back</h2>
         <p className="auth-subtitle">Login to your account</p>
         {error && <p className="auth-error">{error}</p>}
-        <p className="auth-hint">Admin: admin@coffeeshop.com / Nautique1991</p>
         <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-group">
             <label htmlFor="email">Email</label>
