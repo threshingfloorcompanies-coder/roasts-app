@@ -39,7 +39,7 @@ function Navbar() {
             </>
           ) : (
             <>
-              <Link to="/login" className="nav-link">Login</Link>
+              <Link to="/login" className="nav-link login-btn">Login</Link>
               <Link to="/signup" className="nav-link signup-btn">Sign Up</Link>
             </>
           )}

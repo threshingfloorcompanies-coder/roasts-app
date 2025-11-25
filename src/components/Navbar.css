@@ -105,6 +105,28 @@
   width: 100%;
 }
 
+.login-btn {
+  background: transparent;
+  border: 2px solid var(--accent-gold);
+  color: var(--accent-gold);
+  padding: 0.65rem 1.5rem;
+  border-radius: 25px;
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-normal);
+}
+
+.login-btn::after {
+  display: none;
+}
+
+.login-btn:hover {
+  background: var(--accent-gold);
+  color: var(--primary-brown);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
 .signup-btn {
   background: linear-gradient(135deg, var(--accent-gold) 0%, #c19563 100%);
   color: var(--primary-brown);
@@ -198,6 +220,7 @@
     padding: 0.35rem 0;
   }
 
+  .login-btn,
   .signup-btn,
   .logout-btn {
     padding: 0.5rem 1rem;
