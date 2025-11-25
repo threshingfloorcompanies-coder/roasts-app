@@ -9,6 +9,7 @@ import Login from './components/Login';
 import Signup from './components/Signup';
 import AdminDashboard from './components/AdminDashboard';
 import Cart from './pages/Cart';
+import MyOrders from './pages/MyOrders';
 import AdminOrders from './pages/AdminOrders';
 import AdminCalendar from './pages/AdminCalendar';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -28,6 +29,7 @@ function App() {
                   <Route path="/login" element={<Login />} />
                   <Route path="/signup" element={<Signup />} />
                   <Route path="/cart" element={<Cart />} />
+                  <Route path="/my-orders" element={<MyOrders />} />
                   <Route
                     path="/admin"
                     element={

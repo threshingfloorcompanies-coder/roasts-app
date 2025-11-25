@@ -28,6 +28,7 @@ function Navbar() {
           </Link>
           {user ? (
             <>
+              <Link to="/my-orders" className="nav-link">My Orders</Link>
               {isAdmin && <Link to="/admin" className="nav-link">Admin</Link>}
               <span className="nav-link user-name">Hi, {user.name}</span>
               <button onClick={handleLogout} className="nav-link logout-btn">Logout</button>

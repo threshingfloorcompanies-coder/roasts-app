@@ -13,8 +13,8 @@ function AdminOrders() {
 
   const handleConfirmPayment = async (order) => {
     try {
-      // Update order status
-      await updateOrderStatus(order.id, 'placed');
+      // Update order status to confirmed
+      await updateOrderStatus(order.id, 'confirmed');
 
       // Decrement quantity for each item in the order
       for (const item of order.items) {
@@ -25,10 +25,21 @@ function AdminOrders() {
         }
       }
 
-      alert('Order confirmed! Quantities have been updated.');
+      alert('Payment confirmed! Quantities have been updated.');
       fetchOrders();
     } catch (error) {
-      alert('Failed to confirm order. Please try again.');
+      alert('Failed to confirm payment. Please try again.');
+      console.error(error);
+    }
+  };
+
+  const handleStatusChange = async (orderId, newStatus) => {
+    try {
+      await updateOrderStatus(orderId, newStatus);
+      alert(`Order status updated to ${newStatus}!`);
+      fetchOrders();
+    } catch (error) {
+      alert('Failed to update order status. Please try again.');
       console.error(error);
     }
   };
@@ -55,7 +66,10 @@ function AdminOrders() {
                   <p className="order-date">{formatDate(order.createdAt)}</p>
                 </div>
                 <span className={`order-status ${order.status}`}>
-                  {order.status === 'pending' ? 'Pending Payment' : 'Placed'}
+                  {order.status === 'pending' && 'Pending Payment'}
+                  {order.status === 'confirmed' && 'Payment Confirmed'}
+                  {order.status === 'fulfilled' && 'Fulfilled'}
+                  {order.status === 'cancelled' && 'Cancelled'}
                 </span>
               </div>
 
@@ -108,14 +122,32 @@ function AdminOrders() {
                 <strong>Total: ${order.total.toFixed(2)}</strong>
               </div>
 
-              {order.status === 'pending' && (
-                <button
-                  onClick={() => handleConfirmPayment(order)}
-                  className="confirm-payment-btn"
-                >
-                  Confirm Payment Received
-                </button>
-              )}
+              <div className="order-actions">
+                {order.status === 'pending' && (
+                  <>
+                    <button
+                      onClick={() => handleConfirmPayment(order)}
+                      className="confirm-payment-btn"
+                    >
+                      Confirm Payment Received
+                    </button>
+                    <button
+                      onClick={() => handleStatusChange(order.id, 'cancelled')}
+                      className="cancel-order-btn"
+                    >
+                      Cancel Order
+                    </button>
+                  </>
+                )}
+                {order.status === 'confirmed' && (
+                  <button
+                    onClick={() => handleStatusChange(order.id, 'fulfilled')}
+                    className="fulfill-order-btn"
+                  >
+                    Mark as Fulfilled
+                  </button>
+                )}
+              </div>
             </div>
           ))
         )}

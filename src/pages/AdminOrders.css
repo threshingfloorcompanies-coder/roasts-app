@@ -44,8 +44,16 @@
   border-color: #ff9800;
 }
 
-.order-card.placed {
+.order-card.confirmed {
+  border-color: #2196F3;
+}
+
+.order-card.fulfilled {
   border-color: #4CAF50;
+}
+
+.order-card.cancelled {
+  border-color: #f44336;
 }
 
 .order-card:hover {
@@ -86,9 +94,19 @@
   color: #e65100;
 }
 
-.order-status.placed {
+.order-status.confirmed {
+  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+  color: #0d47a1;
+}
+
+.order-status.fulfilled {
   background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
   color: #1b5e20;
+}
+
+.order-status.cancelled {
+  background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+  color: #b71c1c;
 }
 
 .order-customer,
@@ -163,10 +181,16 @@
   margin-bottom: 1rem;
 }
 
-.confirm-payment-btn {
+.order-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-direction: column;
+}
+
+.confirm-payment-btn,
+.fulfill-order-btn,
+.cancel-order-btn {
   width: 100%;
-  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-  color: var(--white);
   border: none;
   padding: 1rem;
   border-radius: 16px;
@@ -175,12 +199,40 @@
   cursor: pointer;
   transition: all var(--transition-normal);
   box-shadow: var(--shadow-sm);
+  color: var(--white);
+}
+
+.confirm-payment-btn {
+  background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
 }
 
 .confirm-payment-btn:hover {
+  background: linear-gradient(135deg, #42A5F5 0%, #2196F3 100%);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.fulfill-order-btn {
+  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+}
+
+.fulfill-order-btn:hover {
   background: linear-gradient(135deg, #5bc05f 0%, #4CAF50 100%);
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
+}
+
+.cancel-order-btn {
+  background: transparent;
+  border: 2px solid #f44336;
+  color: #f44336;
+}
+
+.cancel-order-btn:hover {
+  background: #f44336;
+  color: var(--white);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
 }
 
 @media (max-width: 768px) {

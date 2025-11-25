@@ -1,0 +1,159 @@
+import { useState, useEffect } from 'react';
+import { useOrder } from '../context/OrderContext';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import './MyOrders.css';
+
+function MyOrders() {
+  const { orders, loading } = useOrder();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [userOrders, setUserOrders] = useState([]);
+
+  useEffect(() => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+
+    // Filter orders for current user
+    const filteredOrders = orders.filter(order => order.userId === user.email);
+    setUserOrders(filteredOrders);
+  }, [orders, user, navigate]);
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'pending':
+        return 'status-pending';
+      case 'confirmed':
+        return 'status-confirmed';
+      case 'fulfilled':
+        return 'status-fulfilled';
+      case 'cancelled':
+        return 'status-cancelled';
+      default:
+        return '';
+    }
+  };
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    });
+  };
+
+  if (loading) {
+    return (
+      <div className="my-orders-container">
+        <div className="loading">Loading your orders...</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="my-orders-container">
+      <h1>My Orders</h1>
+      <p className="orders-description">
+        Track your coffee orders and their status
+      </p>
+
+      {userOrders.length === 0 ? (
+        <div className="no-orders">
+          <h2>No Orders Yet</h2>
+          <p>You haven't placed any orders yet.</p>
+          <button onClick={() => navigate('/')} className="shop-now-btn">
+            Shop Now
+          </button>
+        </div>
+      ) : (
+        <div className="orders-grid">
+          {userOrders.map(order => (
+            <div key={order.id} className="order-card">
+              <div className="order-header">
+                <div className="order-info">
+                  <span className="order-id">Order #{order.id.slice(-6).toUpperCase()}</span>
+                  <span className={`order-status ${getStatusColor(order.status)}`}>
+                    {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                  </span>
+                </div>
+                <div className="order-date">
+                  {formatDate(order.createdAt)}
+                </div>
+              </div>
+
+              <div className="order-items">
+                <h3>Items:</h3>
+                {order.items.map((item, idx) => (
+                  <div key={idx} className="order-item">
+                    <span className="item-name">{item.name}</span>
+                    <span className="item-quantity">x{item.quantity}</span>
+                    <span className="item-price">${(item.price * item.quantity).toFixed(2)}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="order-details">
+                <div className="detail-row">
+                  <span className="detail-label">Delivery Method:</span>
+                  <span className="detail-value">
+                    {order.deliveryMethod === 'pickup' ? 'Pickup' : 'Delivery'}
+                  </span>
+                </div>
+
+                {order.deliveryMethod === 'pickup' && order.pickupDate && (
+                  <div className="detail-row">
+                    <span className="detail-label">Pickup Time:</span>
+                    <span className="detail-value">{formatDate(order.pickupDate)}</span>
+                  </div>
+                )}
+
+                {order.deliveryMethod === 'pickup' && order.pickupAddress && (
+                  <div className="detail-row">
+                    <span className="detail-label">Pickup Address:</span>
+                    <span className="detail-value">{order.pickupAddress}</span>
+                  </div>
+                )}
+
+                {order.deliveryMethod === 'delivery' && order.shippingAddress && (
+                  <div className="detail-row">
+                    <span className="detail-label">Shipping Address:</span>
+                    <span className="detail-value">
+                      {order.shippingAddress.street}, {order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.zip}
+                    </span>
+                  </div>
+                )}
+
+                <div className="detail-row">
+                  <span className="detail-label">Payment Method:</span>
+                  <span className="detail-value">
+                    {order.paymentMethod === 'cash' ? 'Cash' :
+                     order.paymentMethod === 'venmo' ? 'Venmo' : 'Cash App'}
+                  </span>
+                </div>
+
+                {order.paymentInfo && (
+                  <div className="detail-row">
+                    <span className="detail-label">Payment Info:</span>
+                    <span className="detail-value">{order.paymentInfo}</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="order-total">
+                <span className="total-label">Total:</span>
+                <span className="total-amount">${order.total.toFixed(2)}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default MyOrders;
