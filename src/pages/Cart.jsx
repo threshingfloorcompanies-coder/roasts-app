@@ -4,6 +4,7 @@ import { useCart } from '../context/CartContext';
 import { useOrder } from '../context/OrderContext';
 import { useCoffee } from '../context/CoffeeContext';
 import { useAuth } from '../context/AuthContext';
+import PickupCalendar from '../components/PickupCalendar';
 import './Cart.css';
 
 function Cart() {
@@ -183,7 +184,7 @@ function Cart() {
 
           {deliveryMethod === 'pickup' && (
             <div className="checkout-group">
-              <h3>Pickup Date & Time</h3>
+              <h3>Select Pickup Date & Time</h3>
               {availability.length === 0 ? (
                 <p className="no-availability">Loading pickup times...</p>
               ) : (() => {
@@ -196,29 +197,11 @@ function Cart() {
                   }
 
                   return (
-                    <select
-                      value={pickupDate}
-                      onChange={(e) => setPickupDate(e.target.value)}
-                      className="date-input"
-                    >
-                      <option value="">Select a pickup time...</option>
-                      {futureSlots
-                        .sort((a, b) => new Date(a.date) - new Date(b.date))
-                        .map(slot => (
-                          <option key={slot.id} value={slot.date}>
-                            {new Date(slot.date).toLocaleDateString('en-US', {
-                              weekday: 'short',
-                              month: 'short',
-                              day: 'numeric',
-                              year: 'numeric'
-                            })} at {new Date(slot.date).toLocaleTimeString('en-US', {
-                              hour: 'numeric',
-                              minute: '2-digit',
-                              hour12: true
-                            })}
-                          </option>
-                        ))}
-                    </select>
+                    <PickupCalendar
+                      availability={availability}
+                      selectedDateTime={pickupDate}
+                      onSelectDateTime={setPickupDate}
+                    />
                   );
                 })()}
             </div>
