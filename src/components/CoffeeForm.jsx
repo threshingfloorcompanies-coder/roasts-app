@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useCoffee } from '../context/CoffeeContext';
-import { storage } from '../firebase/config';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import Modal from './Modal';
 import './CoffeeForm.css';
 
@@ -59,20 +57,29 @@ function CoffeeForm({ coffee, onClose }) {
     });
   };
 
-  const uploadImage = async () => {
+  const convertImageToBase64 = async () => {
     if (!imageFile) return formData.image;
+
+    // Check file size (max 500KB to keep Firestore documents reasonable)
+    const maxSize = 500 * 1024; // 500KB in bytes
+    if (imageFile.size > maxSize) {
+      showAlert('Image Too Large', 'Please use an image smaller than 500KB. You can compress it at tinypng.com or use an image URL instead.');
+      throw new Error('Image too large');
+    }
 
     setUploadingImage(true);
     try {
-      const timestamp = Date.now();
-      const fileName = `coffee-images/${timestamp}_${imageFile.name}`;
-      const storageRef = ref(storage, fileName);
-      await uploadBytes(storageRef, imageFile);
-      const downloadURL = await getDownloadURL(storageRef);
-      return downloadURL;
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          resolve(reader.result); // This is the base64 string
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(imageFile);
+      });
     } catch (error) {
-      console.error('Error uploading image:', error);
-      showAlert('Upload Failed', 'Failed to upload image. Please make sure Firebase Storage is enabled in your Firebase Console, or use an image URL instead.');
+      console.error('Error converting image:', error);
+      showAlert('Upload Failed', 'Failed to process image. Please try again or use an image URL instead.');
       throw error;
     } finally {
       setUploadingImage(false);
@@ -83,12 +90,12 @@ function CoffeeForm({ coffee, onClose }) {
     e.preventDefault();
 
     try {
-      // Upload image if a new file was selected
-      const imageUrl = await uploadImage();
+      // Convert image to base64 if a new file was selected
+      const imageData = await convertImageToBase64();
 
       const coffeeData = {
         ...formData,
-        image: imageUrl,
+        image: imageData,
         price: parseFloat(formData.price),
         quantity: parseInt(formData.quantity) || 0
       };
@@ -197,7 +204,7 @@ function CoffeeForm({ coffee, onClose }) {
               Cancel
             </button>
             <button type="submit" className="submit-btn" disabled={uploadingImage}>
-              {uploadingImage ? 'Uploading Image...' : coffee ? 'Update Roast' : 'Add Roast'}
+              {uploadingImage ? 'Processing Image...' : coffee ? 'Update Roast' : 'Add Roast'}
             </button>
           </div>
         </form>
