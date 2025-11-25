@@ -11,7 +11,7 @@ function Cart() {
   const { cartItems, removeFromCart, updateQuantity, clearCart, getTotalPrice } = useCart();
   const { createOrder, availability, fetchAvailability } = useOrder();
   const { coffees, updateCoffee } = useCoffee();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {

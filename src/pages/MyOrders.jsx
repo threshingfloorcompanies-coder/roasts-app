@@ -5,12 +5,15 @@ import { useNavigate } from 'react-router-dom';
 import './MyOrders.css';
 
 function MyOrders() {
-  const { orders, loading } = useOrder();
-  const { user } = useAuth();
+  const { orders, loading: ordersLoading } = useOrder();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [userOrders, setUserOrders] = useState([]);
 
   useEffect(() => {
+    // Wait for auth to load before checking user
+    if (authLoading) return;
+
     if (!user) {
       navigate('/login');
       return;
@@ -19,7 +22,7 @@ function MyOrders() {
     // Filter orders for current user
     const filteredOrders = orders.filter(order => order.userId === user.email);
     setUserOrders(filteredOrders);
-  }, [orders, user, navigate]);
+  }, [orders, user, navigate, authLoading]);
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -47,7 +50,7 @@ function MyOrders() {
     });
   };
 
-  if (loading) {
+  if (authLoading || ordersLoading) {
     return (
       <div className="my-orders-container">
         <div className="loading">Loading your orders...</div>
