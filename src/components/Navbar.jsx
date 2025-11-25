@@ -22,13 +22,17 @@ function Navbar() {
         </Link>
         <div className="navbar-links">
           <Link to="/" className="nav-link">Home</Link>
-          <Link to="/cart" className="nav-link cart-link">
-            Cart
-            {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
-          </Link>
+          {!isAdmin && (
+            <>
+              <Link to="/cart" className="nav-link cart-link">
+                Cart
+                {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
+              </Link>
+            </>
+          )}
           {user ? (
             <>
-              <Link to="/my-orders" className="nav-link">My Orders</Link>
+              {!isAdmin && <Link to="/my-orders" className="nav-link">My Orders</Link>}
               {isAdmin && <Link to="/admin" className="nav-link">Admin</Link>}
               <span className="nav-link user-name">Hi, {user.name}</span>
               <button onClick={handleLogout} className="nav-link logout-btn">Logout</button>
