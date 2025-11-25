@@ -127,6 +127,28 @@
   min-height: 100px;
 }
 
+.file-input {
+  padding: 0.75rem;
+  border: 2px dashed var(--cream);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  background: var(--light-cream);
+}
+
+.file-input:hover {
+  border-color: var(--accent-gold);
+  background: var(--cream);
+}
+
+.form-help {
+  display: block;
+  margin-top: 0.5rem;
+  color: var(--text-light);
+  font-size: 0.875rem;
+  font-style: italic;
+}
+
 .image-preview {
   margin-top: 1rem;
   text-align: center;

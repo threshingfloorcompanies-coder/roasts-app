@@ -46,9 +46,13 @@ export const OrderProvider = ({ children }) => {
         id: doc.id,
         ...doc.data()
       }));
+      console.log('Fetched availability:', availabilityList);
       setAvailability(availabilityList);
     } catch (error) {
       console.error('Error fetching availability:', error);
+      console.error('Error details:', error.message);
+      // Set empty array on error so UI can handle it
+      setAvailability([]);
     }
   };
 

@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useCoffee } from '../context/CoffeeContext';
+import { storage } from '../firebase/config';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import './CoffeeForm.css';
 
 function CoffeeForm({ coffee, onClose }) {
@@ -11,6 +13,8 @@ function CoffeeForm({ coffee, onClose }) {
     image: '',
     quantity: ''
   });
+  const [imageFile, setImageFile] = useState(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   useEffect(() => {
     if (coffee) {
@@ -31,21 +35,63 @@ function CoffeeForm({ coffee, onClose }) {
     });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const coffeeData = {
-      ...formData,
-      price: parseFloat(formData.price),
-      quantity: parseInt(formData.quantity) || 0
-    };
-
-    if (coffee) {
-      updateCoffee(coffee.id, coffeeData);
-    } else {
-      addCoffee(coffeeData);
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImageFile(file);
+      // Create preview URL
+      const previewUrl = URL.createObjectURL(file);
+      setFormData({
+        ...formData,
+        image: previewUrl
+      });
     }
+  };
 
-    onClose();
+  const uploadImage = async () => {
+    if (!imageFile) return formData.image;
+
+    setUploadingImage(true);
+    try {
+      const timestamp = Date.now();
+      const fileName = `coffee-images/${timestamp}_${imageFile.name}`;
+      const storageRef = ref(storage, fileName);
+      await uploadBytes(storageRef, imageFile);
+      const downloadURL = await getDownloadURL(storageRef);
+      return downloadURL;
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      alert('Failed to upload image. Please try again.');
+      throw error;
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      // Upload image if a new file was selected
+      const imageUrl = await uploadImage();
+
+      const coffeeData = {
+        ...formData,
+        image: imageUrl,
+        price: parseFloat(formData.price),
+        quantity: parseInt(formData.quantity) || 0
+      };
+
+      if (coffee) {
+        updateCoffee(coffee.id, coffeeData);
+      } else {
+        addCoffee(coffeeData);
+      }
+
+      onClose();
+    } catch (error) {
+      console.error('Error submitting form:', error);
+    }
   };
 
   return (
@@ -108,15 +154,26 @@ function CoffeeForm({ coffee, onClose }) {
             />
           </div>
           <div className="form-group">
-            <label htmlFor="image">Image URL</label>
+            <label htmlFor="imageFile">Upload Image</label>
+            <input
+              type="file"
+              id="imageFile"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="file-input"
+            />
+            <small className="form-help">Or enter URL below</small>
+          </div>
+          <div className="form-group">
+            <label htmlFor="image">Image URL (Optional)</label>
             <input
               type="url"
               id="image"
               name="image"
-              value={formData.image}
+              value={imageFile ? '' : formData.image}
               onChange={handleChange}
-              required
               placeholder="https://example.com/image.jpg"
+              disabled={imageFile !== null}
             />
           </div>
           {formData.image && (
@@ -125,11 +182,11 @@ function CoffeeForm({ coffee, onClose }) {
             </div>
           )}
           <div className="form-actions">
-            <button type="button" onClick={onClose} className="cancel-btn">
+            <button type="button" onClick={onClose} className="cancel-btn" disabled={uploadingImage}>
               Cancel
             </button>
-            <button type="submit" className="submit-btn">
-              {coffee ? 'Update' : 'Add'} Roast
+            <button type="submit" className="submit-btn" disabled={uploadingImage}>
+              {uploadingImage ? 'Uploading Image...' : coffee ? 'Update Roast' : 'Add Roast'}
             </button>
           </div>
         </form>
