@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const ADMIN_EMAIL = 'admin@coffeeshop.com';
+  const ADMIN_EMAIL = 'threshingfloorcompanies@gmail.com';
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
