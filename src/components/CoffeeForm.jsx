@@ -57,29 +57,42 @@ function CoffeeForm({ coffee, onClose }) {
     });
   };
 
-  const convertImageToBase64 = async () => {
+  const uploadToImgBB = async () => {
     if (!imageFile) return formData.image;
 
-    // Check file size (max 500KB to keep Firestore documents reasonable)
-    const maxSize = 500 * 1024; // 500KB in bytes
+    const apiKey = import.meta.env.VITE_IMGBB_API_KEY;
+    if (!apiKey || apiKey === 'your_api_key_here') {
+      showAlert('API Key Missing', 'Please add your ImgBB API key to the .env file. Get a free key at https://api.imgbb.com/');
+      throw new Error('ImgBB API key not configured');
+    }
+
+    // Check file size (ImgBB free tier allows up to 32MB)
+    const maxSize = 32 * 1024 * 1024; // 32MB in bytes
     if (imageFile.size > maxSize) {
-      showAlert('Image Too Large', 'Please use an image smaller than 500KB. You can compress it at tinypng.com or use an image URL instead.');
+      showAlert('Image Too Large', 'Please use an image smaller than 32MB.');
       throw new Error('Image too large');
     }
 
     setUploadingImage(true);
     try {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          resolve(reader.result); // This is the base64 string
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(imageFile);
+      const formData = new FormData();
+      formData.append('image', imageFile);
+
+      const response = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
+        method: 'POST',
+        body: formData
       });
+
+      const data = await response.json();
+
+      if (!data.success) {
+        throw new Error(data.error?.message || 'Upload failed');
+      }
+
+      return data.data.url; // Returns the image URL
     } catch (error) {
-      console.error('Error converting image:', error);
-      showAlert('Upload Failed', 'Failed to process image. Please try again or use an image URL instead.');
+      console.error('Error uploading to ImgBB:', error);
+      showAlert('Upload Failed', `Failed to upload image: ${error.message}. Please try again or use an image URL instead.`);
       throw error;
     } finally {
       setUploadingImage(false);
@@ -90,12 +103,12 @@ function CoffeeForm({ coffee, onClose }) {
     e.preventDefault();
 
     try {
-      // Convert image to base64 if a new file was selected
-      const imageData = await convertImageToBase64();
+      // Upload image to ImgBB if a new file was selected
+      const imageUrl = await uploadToImgBB();
 
       const coffeeData = {
         ...formData,
-        image: imageData,
+        image: imageUrl,
         price: parseFloat(formData.price),
         quantity: parseInt(formData.quantity) || 0
       };
@@ -204,7 +217,7 @@ function CoffeeForm({ coffee, onClose }) {
               Cancel
             </button>
             <button type="submit" className="submit-btn" disabled={uploadingImage}>
-              {uploadingImage ? 'Processing Image...' : coffee ? 'Update Roast' : 'Add Roast'}
+              {uploadingImage ? 'Uploading Image...' : coffee ? 'Update Roast' : 'Add Roast'}
             </button>
           </div>
         </form>
