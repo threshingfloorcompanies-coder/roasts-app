@@ -10,11 +10,6 @@ A responsive coffee shop website built with React that works on both mobile and 
 - **Responsive Design**: Works seamlessly on mobile, tablet, and desktop
 - **Real-time Updates**: Changes made by admin are immediately visible
 
-## Admin Credentials
-
-**Email:** admin@coffeeshop.com
-**Password:** admin123
-
 ## Local Development
 
 ### Prerequisites
