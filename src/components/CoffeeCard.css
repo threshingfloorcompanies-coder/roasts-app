@@ -57,8 +57,9 @@
 .coffee-image {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   transition: transform 0.5s ease;
+  cursor: pointer;
 }
 
 .coffee-card:hover .coffee-image {
@@ -157,6 +158,54 @@
   box-shadow: var(--shadow-sm);
 }
 
+.image-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  cursor: pointer;
+}
+
+.image-modal-content {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+  cursor: default;
+}
+
+.image-modal-img {
+  max-width: 100%;
+  max-height: 90vh;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.image-modal-close {
+  position: absolute;
+  top: -40px;
+  right: 0;
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 3rem;
+  cursor: pointer;
+  padding: 0;
+  width: 40px;
+  height: 40px;
+  line-height: 1;
+  transition: transform 0.2s;
+}
+
+.image-modal-close:hover {
+  transform: scale(1.2);
+}
+
 @media (max-width: 480px) {
   .coffee-image-container {
     height: 200px;
@@ -181,5 +230,10 @@
   .add-to-cart-btn {
     padding: 0.55rem 1.25rem;
     font-size: 0.9rem;
+  }
+
+  .image-modal-close {
+    top: -35px;
+    font-size: 2.5rem;
   }
 }

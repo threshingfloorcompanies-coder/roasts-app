@@ -8,6 +8,7 @@ function CoffeeCard({ coffee }) {
   const { addToCart } = useCart();
   const { isAdmin } = useAuth();
   const [showToast, setShowToast] = useState(false);
+  const [showImageModal, setShowImageModal] = useState(false);
   const isOutOfStock = !coffee.quantity || coffee.quantity === 0;
 
   const handleAddToCart = () => {
@@ -15,6 +16,10 @@ function CoffeeCard({ coffee }) {
       addToCart(coffee);
       setShowToast(true);
     }
+  };
+
+  const handleImageClick = () => {
+    setShowImageModal(true);
   };
 
   return (
@@ -25,12 +30,26 @@ function CoffeeCard({ coffee }) {
           onClose={() => setShowToast(false)}
         />
       )}
+      {showImageModal && (
+        <div className="image-modal-overlay" onClick={() => setShowImageModal(false)}>
+          <div className="image-modal-content" onClick={(e) => e.stopPropagation()}>
+            <button className="image-modal-close" onClick={() => setShowImageModal(false)}>&times;</button>
+            <img src={coffee.image} alt={coffee.name} className="image-modal-img" />
+          </div>
+        </div>
+      )}
       <div className="coffee-card">
         {isOutOfStock && (
           <div className="out-of-stock-badge">Out of Stock</div>
         )}
       <div className="coffee-image-container">
-        <img src={coffee.image} alt={coffee.name} className="coffee-image" />
+        <img
+          src={coffee.image}
+          alt={coffee.name}
+          className="coffee-image"
+          onClick={handleImageClick}
+          title="Click to view full image"
+        />
       </div>
       <div className="coffee-details">
         <h3 className="coffee-name">{coffee.name}</h3>
