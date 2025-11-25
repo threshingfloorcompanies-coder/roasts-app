@@ -298,7 +298,8 @@
     padding-top: 1rem;
   }
 
-  .admin-table td:first-child:before {
+  .admin-table td:first-child:before,
+  .admin-table td:last-child:before {
     display: none;
   }
 
