@@ -1,12 +1,15 @@
 import { useState } from 'react';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 import Toast from './Toast';
 import './CoffeeCard.css';
 
 function CoffeeCard({ coffee }) {
   const { addToCart } = useCart();
+  const { currentUser } = useAuth();
   const [showToast, setShowToast] = useState(false);
   const isOutOfStock = !coffee.quantity || coffee.quantity === 0;
+  const isAdmin = currentUser?.email === 'admin@admin.com';
 
   const handleAddToCart = () => {
     if (!isOutOfStock) {
@@ -42,13 +45,15 @@ function CoffeeCard({ coffee }) {
         </div>
         <div className="coffee-footer">
           <span className="coffee-price">${coffee.price.toFixed(2)}</span>
-          <button
-            className={`add-to-cart-btn ${isOutOfStock ? 'disabled' : ''}`}
-            onClick={handleAddToCart}
-            disabled={isOutOfStock}
-          >
-            {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
-          </button>
+          {!isAdmin && (
+            <button
+              className={`add-to-cart-btn ${isOutOfStock ? 'disabled' : ''}`}
+              onClick={handleAddToCart}
+              disabled={isOutOfStock}
+            >
+              {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
+            </button>
+          )}
         </div>
       </div>
     </div>

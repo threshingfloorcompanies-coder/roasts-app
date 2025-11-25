@@ -2,12 +2,14 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useCoffee } from '../context/CoffeeContext';
 import CoffeeForm from './CoffeeForm';
+import Modal from './Modal';
 import './AdminDashboard.css';
 
 function AdminDashboard() {
   const { coffees, deleteCoffee } = useCoffee();
   const [editingCoffee, setEditingCoffee] = useState(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [modal, setModal] = useState({ isOpen: false, title: '', message: '', onConfirm: null, onCancel: null });
 
   const handleEdit = (coffee) => {
     setEditingCoffee(coffee);
@@ -15,9 +17,16 @@ function AdminDashboard() {
   };
 
   const handleDelete = (id) => {
-    if (window.confirm('Are you sure you want to delete this roast?')) {
-      deleteCoffee(id);
-    }
+    setModal({
+      isOpen: true,
+      title: 'Delete Roast',
+      message: 'Are you sure you want to delete this roast? This action cannot be undone.',
+      onConfirm: () => {
+        deleteCoffee(id);
+        setModal({ ...modal, isOpen: false });
+      },
+      onCancel: () => setModal({ ...modal, isOpen: false })
+    });
   };
 
   const handleFormClose = () => {
@@ -69,14 +78,14 @@ function AdminDashboard() {
           <tbody>
             {coffees.map(coffee => (
               <tr key={coffee.id}>
-                <td>
+                <td data-label="Image">
                   <img src={coffee.image} alt={coffee.name} className="admin-coffee-img" />
                 </td>
-                <td>{coffee.name}</td>
-                <td>{coffee.description}</td>
-                <td>${coffee.price.toFixed(2)}</td>
-                <td>{coffee.quantity || 0} in stock</td>
-                <td>
+                <td data-label="Name">{coffee.name}</td>
+                <td data-label="Description">{coffee.description}</td>
+                <td data-label="Price">${coffee.price.toFixed(2)}</td>
+                <td data-label="Quantity">{coffee.quantity || 0} in stock</td>
+                <td data-label="Actions">
                   <div className="admin-actions">
                     <button
                       onClick={() => handleEdit(coffee)}
@@ -97,6 +106,15 @@ function AdminDashboard() {
           </tbody>
         </table>
       </div>
+
+      <Modal
+        isOpen={modal.isOpen}
+        title={modal.title}
+        message={modal.message}
+        onConfirm={modal.onConfirm}
+        onCancel={modal.onCancel}
+        type="confirm"
+      />
     </div>
   );
 }

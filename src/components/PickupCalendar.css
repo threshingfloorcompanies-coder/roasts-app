@@ -32,6 +32,9 @@
   cursor: pointer;
   transition: all var(--transition-normal);
   color: var(--text-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .pickup-month-nav-btn:hover {

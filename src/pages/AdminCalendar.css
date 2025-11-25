@@ -53,6 +53,9 @@
   cursor: pointer;
   transition: all var(--transition-normal);
   color: var(--text-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .month-nav-btn:hover {
