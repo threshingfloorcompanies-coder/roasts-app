@@ -22,15 +22,17 @@ function Signup() {
     setError('');
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match!');
       return;
     }
-    const result = signup(formData.name, formData.email, formData.password);
+    const result = await signup(formData.name, formData.email, formData.password);
     if (result.success) {
       navigate('/');
+    } else {
+      setError(result.error || 'Signup failed');
     }
   };
 

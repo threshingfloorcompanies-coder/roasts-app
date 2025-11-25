@@ -1,10 +1,13 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useCart } from '../context/CartContext';
 import './Navbar.css';
 
 function Navbar() {
   const { user, isAdmin, logout } = useAuth();
+  const { getTotalItems } = useCart();
   const navigate = useNavigate();
+  const cartCount = getTotalItems();
 
   const handleLogout = () => {
     logout();
@@ -15,10 +18,14 @@ function Navbar() {
     <nav className="navbar">
       <div className="navbar-container">
         <Link to="/" className="navbar-logo">
-          Coffee Shop
+          <img src="/images/ThreshingFloorLogo11.25.png" alt="Threshing Floor Roasting Co." className="logo-image" />
         </Link>
         <div className="navbar-links">
           <Link to="/" className="nav-link">Home</Link>
+          <Link to="/cart" className="nav-link cart-link">
+            Cart
+            {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
+          </Link>
           {user ? (
             <>
               {isAdmin && <Link to="/admin" className="nav-link">Admin</Link>}

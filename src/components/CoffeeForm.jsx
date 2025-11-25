@@ -8,7 +8,8 @@ function CoffeeForm({ coffee, onClose }) {
     name: '',
     description: '',
     price: '',
-    image: ''
+    image: '',
+    quantity: ''
   });
 
   useEffect(() => {
@@ -17,7 +18,8 @@ function CoffeeForm({ coffee, onClose }) {
         name: coffee.name,
         description: coffee.description,
         price: coffee.price.toString(),
-        image: coffee.image
+        image: coffee.image,
+        quantity: coffee.quantity?.toString() || '0'
       });
     }
   }, [coffee]);
@@ -33,7 +35,8 @@ function CoffeeForm({ coffee, onClose }) {
     e.preventDefault();
     const coffeeData = {
       ...formData,
-      price: parseFloat(formData.price)
+      price: parseFloat(formData.price),
+      quantity: parseInt(formData.quantity) || 0
     };
 
     if (coffee) {
@@ -49,7 +52,7 @@ function CoffeeForm({ coffee, onClose }) {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>{coffee ? 'Edit Coffee' : 'Add New Coffee'}</h2>
+          <h2>{coffee ? 'Edit Roast' : 'Add New Roast'}</h2>
           <button onClick={onClose} className="close-btn">&times;</button>
         </div>
         <form onSubmit={handleSubmit} className="coffee-form">
@@ -62,7 +65,7 @@ function CoffeeForm({ coffee, onClose }) {
               value={formData.name}
               onChange={handleChange}
               required
-              placeholder="e.g., Espresso"
+              placeholder="e.g., Ethiopian Yirgacheffe"
             />
           </div>
           <div className="form-group">
@@ -73,7 +76,7 @@ function CoffeeForm({ coffee, onClose }) {
               value={formData.description}
               onChange={handleChange}
               required
-              placeholder="Brief description of the coffee"
+              placeholder="Brief description of the beans"
               rows="3"
             />
           </div>
@@ -89,6 +92,19 @@ function CoffeeForm({ coffee, onClose }) {
               step="0.01"
               min="0"
               placeholder="e.g., 4.50"
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="quantity">Quantity Available</label>
+            <input
+              type="number"
+              id="quantity"
+              name="quantity"
+              value={formData.quantity}
+              onChange={handleChange}
+              required
+              min="0"
+              placeholder="e.g., 10"
             />
           </div>
           <div className="form-group">
@@ -113,7 +129,7 @@ function CoffeeForm({ coffee, onClose }) {
               Cancel
             </button>
             <button type="submit" className="submit-btn">
-              {coffee ? 'Update' : 'Add'} Coffee
+              {coffee ? 'Update' : 'Add'} Roast
             </button>
           </div>
         </form>

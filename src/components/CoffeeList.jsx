@@ -8,8 +8,8 @@ function CoffeeList() {
   return (
     <div className="coffee-list-container">
       <div className="coffee-list-header">
-        <h1>Our Coffee Selection</h1>
-        <p>Discover your perfect cup</p>
+        <h1>Our Premium Roasts</h1>
+        <p>Freshly roasted beans delivered to your door</p>
       </div>
       <div className="coffee-grid">
         {coffees.map(coffee => (

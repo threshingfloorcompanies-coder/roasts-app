@@ -20,9 +20,9 @@ function Login() {
     setError('');
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const result = login(formData.email, formData.password);
+    const result = await login(formData.email, formData.password);
 
     if (result.success) {
       if (result.isAdmin) {
@@ -31,7 +31,7 @@ function Login() {
         navigate('/');
       }
     } else {
-      setError('Invalid credentials');
+      setError(result.error || 'Invalid credentials');
     }
   };
 
@@ -41,7 +41,7 @@ function Login() {
         <h2>Welcome Back</h2>
         <p className="auth-subtitle">Login to your account</p>
         {error && <p className="auth-error">{error}</p>}
-        <p className="auth-hint">Admin: admin@coffeeshop.com / admin123</p>
+        <p className="auth-hint">Admin: admin@coffeeshop.com / Nautique1991</p>
         <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-group">
             <label htmlFor="email">Email</label>

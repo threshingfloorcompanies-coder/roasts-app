@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useCoffee } from '../context/CoffeeContext';
 import CoffeeForm from './CoffeeForm';
 import './AdminDashboard.css';
@@ -14,7 +15,7 @@ function AdminDashboard() {
   };
 
   const handleDelete = (id) => {
-    if (window.confirm('Are you sure you want to delete this coffee?')) {
+    if (window.confirm('Are you sure you want to delete this roast?')) {
       deleteCoffee(id);
     }
   };
@@ -33,9 +34,17 @@ function AdminDashboard() {
     <div className="admin-container">
       <div className="admin-header">
         <h1>Admin Dashboard</h1>
-        <button onClick={handleAddNew} className="add-coffee-btn">
-          Add New Coffee
-        </button>
+        <div className="admin-actions-group">
+          <Link to="/admin/orders" className="view-orders-btn">
+            View Orders
+          </Link>
+          <Link to="/admin/calendar" className="view-calendar-btn">
+            Manage Calendar
+          </Link>
+          <button onClick={handleAddNew} className="add-coffee-btn">
+            Add New Roast
+          </button>
+        </div>
       </div>
 
       {isFormOpen && (
@@ -53,6 +62,7 @@ function AdminDashboard() {
               <th>Name</th>
               <th>Description</th>
               <th>Price</th>
+              <th>Quantity</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -65,6 +75,7 @@ function AdminDashboard() {
                 <td>{coffee.name}</td>
                 <td>{coffee.description}</td>
                 <td>${coffee.price.toFixed(2)}</td>
+                <td>{coffee.quantity || 0} in stock</td>
                 <td>
                   <div className="admin-actions">
                     <button
