@@ -90,10 +90,19 @@ function AdminOrders() {
                       minute: '2-digit',
                       hour12: true
                     })}</p>
-                    {order.status === 'placed' && order.pickupAddress && (
+                    {order.pickupAddress && (
                       <div className="pickup-address">
                         <p><strong>Pickup Location:</strong></p>
-                        <p>{order.pickupAddress}</p>
+                        <p>
+                          <a
+                            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(order.pickupAddress)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="address-link"
+                          >
+                            {order.pickupAddress}
+                          </a>
+                        </p>
                       </div>
                     )}
                   </>

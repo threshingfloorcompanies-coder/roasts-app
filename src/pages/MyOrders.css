@@ -154,22 +154,32 @@
   background: var(--light-cream);
   border-radius: 12px;
   margin-bottom: 0.5rem;
+  flex-wrap: nowrap;
+  gap: 0.5rem;
 }
 
 .item-name {
   flex: 1;
   color: var(--text-dark);
   font-weight: 600;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .item-quantity {
   color: var(--text-medium);
-  margin: 0 1rem;
+  margin: 0 0.5rem;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .item-price {
   color: var(--primary-brown);
   font-weight: 700;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .order-details {
@@ -199,6 +209,16 @@
   color: var(--text-dark);
   text-align: right;
   max-width: 60%;
+}
+
+.address-link {
+  color: var(--primary-brown);
+  text-decoration: underline;
+  transition: color var(--transition-fast);
+}
+
+.address-link:hover {
+  color: var(--accent-gold);
 }
 
 .order-total {
@@ -236,16 +256,6 @@
     gap: 0.75rem;
   }
 
-  .order-item {
-    flex-wrap: nowrap;
-    gap: 0.5rem;
-  }
-
-  .item-name {
-    flex: 1;
-    min-width: 0;
-  }
-
   .detail-value {
     max-width: 50%;
   }
@@ -265,25 +275,8 @@
   }
 
   .order-item {
-    flex-wrap: nowrap;
     font-size: 0.9rem;
-  }
-
-  .item-name {
-    flex: 1;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .item-quantity {
-    margin: 0 0.5rem;
-    flex-shrink: 0;
-  }
-
-  .item-price {
-    flex-shrink: 0;
+    padding: 0.65rem 0.85rem;
   }
 
   .detail-row {

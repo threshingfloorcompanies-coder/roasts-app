@@ -118,7 +118,16 @@ function MyOrders() {
                 {order.deliveryMethod === 'pickup' && order.pickupAddress && (
                   <div className="detail-row">
                     <span className="detail-label">Pickup Address:</span>
-                    <span className="detail-value">{order.pickupAddress}</span>
+                    <span className="detail-value">
+                      <a
+                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(order.pickupAddress)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="address-link"
+                      >
+                        {order.pickupAddress}
+                      </a>
+                    </span>
                   </div>
                 )}
 

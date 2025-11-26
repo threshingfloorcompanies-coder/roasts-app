@@ -80,7 +80,7 @@ function Cart() {
         total: getTotalPrice(),
         deliveryMethod,
         pickupDate: deliveryMethod === 'pickup' ? pickupDate : null,
-        pickupAddress: deliveryMethod === 'pickup' ? '1234 Roasting Lane, Coffee City, CA 90210' : null,
+        pickupAddress: deliveryMethod === 'pickup' ? '4400 Robinhood Rd, Winston Salem, NC 27106 United States' : null,
         shippingAddress: deliveryMethod === 'delivery' ? shippingAddress : null,
         paymentMethod,
         paymentInfo: getPaymentInfo()
@@ -99,7 +99,7 @@ function Cart() {
   };
 
   const getPaymentInfo = () => {
-    if (paymentMethod === 'venmo') return 'david-coutts-2';
+    if (paymentMethod === 'venmo') return '@threshingfloor-co';
     if (paymentMethod === 'cashapp') return '$davidcoutts1';
     return 'Cash on pickup';
   };
@@ -282,7 +282,7 @@ function Cart() {
             <div className="payment-info">
               <h3>Payment Information</h3>
               {paymentMethod === 'venmo' && (
-                <p>Please send payment to: <strong>david-coutts-2</strong></p>
+                <p>Please send payment to: <strong>@threshingfloor-co</strong></p>
               )}
               {paymentMethod === 'cashapp' && (
                 <p>Please send payment to: <strong>$davidcoutts1</strong></p>

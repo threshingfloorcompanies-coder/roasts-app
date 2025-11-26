@@ -269,3 +269,13 @@
     gap: 0.25rem;
   }
 }
+
+.address-link {
+  color: var(--primary-brown);
+  text-decoration: underline;
+  transition: color var(--transition-fast);
+}
+
+.address-link:hover {
+  color: var(--accent-gold);
+}
