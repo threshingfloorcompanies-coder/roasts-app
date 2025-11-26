@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { db } from '../firebase/config';
+import { db, auth } from '../firebase/config';
 import { collection, getDocs, addDoc, updateDoc, doc, deleteDoc } from 'firebase/firestore';
+import { onAuthStateChanged } from 'firebase/auth';
 
 const OrderContext = createContext();
 
@@ -16,25 +17,42 @@ export const OrderProvider = ({ children }) => {
   const [orders, setOrders] = useState([]);
   const [availability, setAvailability] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [authReady, setAuthReady] = useState(false);
+
+  // Wait for auth to be ready before fetching
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      console.log('OrderContext: Auth state changed, user:', user?.email || 'none');
+      setAuthReady(true);
+    });
+    return unsubscribe;
+  }, []);
 
   useEffect(() => {
-    fetchOrders();
-    fetchAvailability();
-  }, []);
+    if (authReady) {
+      console.log('OrderContext: Auth ready, fetching data...');
+      fetchOrders();
+      fetchAvailability();
+    }
+  }, [authReady]);
 
   const fetchOrders = async () => {
     try {
+      console.log('OrderContext: Starting to fetch orders...');
       const querySnapshot = await getDocs(collection(db, 'orders'));
+      console.log('OrderContext: Query completed, found docs:', querySnapshot.size);
       const orderList = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       }));
+      console.log('OrderContext: Mapped orders:', orderList);
       // Sort by createdAt in JavaScript instead
       orderList.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
       setOrders(orderList);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching orders:', error);
+      console.error('Error details:', error.code, error.message);
       setLoading(false);
     }
   };
