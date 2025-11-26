@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { db, auth } from '../firebase/config';
-import { collection, getDocs, addDoc, updateDoc, doc, deleteDoc } from 'firebase/firestore';
+import { collection, getDocs, addDoc, updateDoc, doc, deleteDoc, query, where } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 
 const OrderContext = createContext();
@@ -17,29 +17,56 @@ export const OrderProvider = ({ children }) => {
   const [orders, setOrders] = useState([]);
   const [availability, setAvailability] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentUser, setCurrentUser] = useState(null);
   const [authReady, setAuthReady] = useState(false);
+
+  const ADMIN_EMAIL = 'threshingfloorcompanies@gmail.com';
 
   // Wait for auth to be ready before fetching
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       console.log('OrderContext: Auth state changed, user:', user?.email || 'none');
+      setCurrentUser(user);
       setAuthReady(true);
     });
     return unsubscribe;
   }, []);
 
   useEffect(() => {
-    if (authReady) {
+    if (authReady && currentUser) {
       console.log('OrderContext: Auth ready, fetching data...');
       fetchOrders();
       fetchAvailability();
+    } else if (authReady && !currentUser) {
+      console.log('OrderContext: No user logged in');
+      setOrders([]);
+      setLoading(false);
     }
-  }, [authReady]);
+  }, [authReady, currentUser]);
 
   const fetchOrders = async () => {
     try {
       console.log('OrderContext: Starting to fetch orders...');
-      const querySnapshot = await getDocs(collection(db, 'orders'));
+      console.log('OrderContext: Current user:', currentUser?.email);
+
+      const isAdmin = currentUser?.email === ADMIN_EMAIL;
+      console.log('OrderContext: Is admin?', isAdmin);
+
+      let querySnapshot;
+      if (isAdmin) {
+        // Admin can fetch all orders
+        console.log('OrderContext: Fetching all orders (admin)');
+        querySnapshot = await getDocs(collection(db, 'orders'));
+      } else {
+        // Regular user can only fetch their own orders
+        console.log('OrderContext: Fetching orders for user:', currentUser?.email);
+        const ordersQuery = query(
+          collection(db, 'orders'),
+          where('userId', '==', currentUser?.email)
+        );
+        querySnapshot = await getDocs(ordersQuery);
+      }
+
       console.log('OrderContext: Query completed, found docs:', querySnapshot.size);
       const orderList = querySnapshot.docs.map(doc => ({
         id: doc.id,
