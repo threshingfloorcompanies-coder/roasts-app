@@ -276,6 +276,20 @@
   border-color: var(--accent-gold);
 }
 
+.timeslot-btn.disabled {
+  background: #e0e0e0;
+  color: #999;
+  border-color: #ccc;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.timeslot-btn.disabled:hover {
+  transform: none;
+  background: #e0e0e0;
+  border-color: #ccc;
+}
+
 .no-selection {
   text-align: center;
   color: var(--text-light);

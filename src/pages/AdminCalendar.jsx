@@ -20,7 +20,26 @@ function AdminCalendar() {
 
   useEffect(() => {
     fetchAvailability();
+    cleanupPastDates();
   }, []);
+
+  const cleanupPastDates = async () => {
+    const now = new Date();
+    const pastSlots = availability.filter(slot => new Date(slot.date) < now);
+
+    for (const slot of pastSlots) {
+      try {
+        await removeAvailableDate(slot.id);
+      } catch (error) {
+        console.error('Error removing past slot:', error);
+      }
+    }
+
+    if (pastSlots.length > 0) {
+      console.log(`Cleaned up ${pastSlots.length} past time slots`);
+      await fetchAvailability();
+    }
+  };
 
   const showAlert = (title, message) => {
     setModal({
@@ -88,14 +107,56 @@ function AdminCalendar() {
 
     // Load existing time slots for this date
     const existingSlots = getAvailabilityForDate(clickedDate);
-    const existingTimes = existingSlots.map(slot => {
+    const now = new Date();
+
+    // Filter out past times if it's today
+    const validSlots = existingSlots.filter(slot => {
+      const slotDate = new Date(slot.date);
+      return slotDate >= now;
+    });
+
+    const existingTimes = validSlots.map(slot => {
       const date = new Date(slot.date);
       return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
     });
     setSelectedTimeSlots(existingTimes);
   };
 
+  const isTimeSlotInPast = (time) => {
+    if (!selectedDate) return false;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const selectedDateOnly = new Date(selectedDate);
+    selectedDateOnly.setHours(0, 0, 0, 0);
+
+    // Only check if it's today
+    if (selectedDateOnly.getTime() !== today.getTime()) {
+      return false;
+    }
+
+    // Parse the time slot
+    const [timePart, meridiem] = time.split(' ');
+    let [hours, minutes] = timePart.split(':').map(Number);
+
+    if (meridiem === 'PM' && hours !== 12) {
+      hours += 12;
+    } else if (meridiem === 'AM' && hours === 12) {
+      hours = 0;
+    }
+
+    const slotTime = new Date();
+    slotTime.setHours(hours, minutes || 0, 0, 0);
+
+    return slotTime < new Date();
+  };
+
   const toggleTimeSlot = (time) => {
+    if (isTimeSlotInPast(time)) {
+      showAlert('Past Time', 'Cannot select a time that has already passed');
+      return;
+    }
+
     setSelectedTimeSlots(prev => {
       if (prev.includes(time)) {
         return prev.filter(t => t !== time);
@@ -331,15 +392,19 @@ function AdminCalendar() {
               )}
 
               <div className="timeslot-grid">
-                {timeSlots.map(time => (
-                  <button
-                    key={time}
-                    className={`timeslot-btn ${selectedTimeSlots.includes(time) ? 'selected' : ''}`}
-                    onClick={() => toggleTimeSlot(time)}
-                  >
-                    {time}
-                  </button>
-                ))}
+                {timeSlots.map(time => {
+                  const isPast = isTimeSlotInPast(time);
+                  return (
+                    <button
+                      key={time}
+                      className={`timeslot-btn ${selectedTimeSlots.includes(time) ? 'selected' : ''} ${isPast ? 'disabled' : ''}`}
+                      onClick={() => toggleTimeSlot(time)}
+                      disabled={isPast}
+                    >
+                      {time}
+                    </button>
+                  );
+                })}
               </div>
 
               <div className="timeslot-actions">

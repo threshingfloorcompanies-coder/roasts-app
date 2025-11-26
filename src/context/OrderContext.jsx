@@ -44,6 +44,30 @@ export const OrderProvider = ({ children }) => {
     }
   }, [authReady, currentUser]);
 
+  const cleanupPastAvailability = async () => {
+    try {
+      const now = new Date();
+      const querySnapshot = await getDocs(collection(db, 'availability'));
+      const pastSlots = querySnapshot.docs
+        .map(doc => ({ id: doc.id, ...doc.data() }))
+        .filter(slot => new Date(slot.date) < now);
+
+      for (const slot of pastSlots) {
+        try {
+          await deleteDoc(doc(db, 'availability', slot.id));
+        } catch (error) {
+          console.error('Error removing past slot:', error);
+        }
+      }
+
+      if (pastSlots.length > 0) {
+        console.log(`Cleaned up ${pastSlots.length} past availability slots`);
+      }
+    } catch (error) {
+      console.error('Error during cleanup:', error);
+    }
+  };
+
   const fetchOrders = async () => {
     try {
       console.log('OrderContext: Starting to fetch orders...');
@@ -86,6 +110,9 @@ export const OrderProvider = ({ children }) => {
 
   const fetchAvailability = async () => {
     try {
+      // Clean up past dates first
+      await cleanupPastAvailability();
+
       const querySnapshot = await getDocs(collection(db, 'availability'));
       const availabilityList = querySnapshot.docs.map(doc => ({
         id: doc.id,

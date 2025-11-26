@@ -198,7 +198,7 @@ function Cart() {
 
                   return (
                     <PickupCalendar
-                      availability={availability}
+                      availability={futureSlots}
                       selectedDateTime={pickupDate}
                       onSelectDateTime={setPickupDate}
                     />
