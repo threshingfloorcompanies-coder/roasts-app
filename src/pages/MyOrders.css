@@ -237,8 +237,13 @@
   }
 
   .order-item {
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 0.5rem;
+  }
+
+  .item-name {
+    flex: 1;
+    min-width: 0;
   }
 
   .detail-value {
@@ -257,6 +262,28 @@
 
   .order-id {
     font-size: 1.1rem;
+  }
+
+  .order-item {
+    flex-wrap: nowrap;
+    font-size: 0.9rem;
+  }
+
+  .item-name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .item-quantity {
+    margin: 0 0.5rem;
+    flex-shrink: 0;
+  }
+
+  .item-price {
+    flex-shrink: 0;
   }
 
   .detail-row {

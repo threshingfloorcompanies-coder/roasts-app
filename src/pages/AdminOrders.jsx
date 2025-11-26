@@ -82,7 +82,14 @@ function AdminOrders() {
                 <p><strong>Method:</strong> {order.deliveryMethod === 'pickup' ? 'Pickup' : 'Delivery'}</p>
                 {order.pickupDate && (
                   <>
-                    <p><strong>Pickup Date:</strong> {new Date(order.pickupDate).toLocaleDateString()}</p>
+                    <p><strong>Pickup Time:</strong> {new Date(order.pickupDate).toLocaleString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric',
+                      hour: 'numeric',
+                      minute: '2-digit',
+                      hour12: true
+                    })}</p>
                     {order.status === 'placed' && order.pickupAddress && (
                       <div className="pickup-address">
                         <p><strong>Pickup Location:</strong></p>

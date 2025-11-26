@@ -20,13 +20,7 @@ function MyOrders() {
     }
 
     // Filter orders for current user
-    console.log('All orders:', orders);
-    console.log('Current user email:', user.email);
-    const filteredOrders = orders.filter(order => {
-      console.log('Checking order:', order.id, 'userId:', order.userId, 'matches:', order.userId === user.email);
-      return order.userId === user.email;
-    });
-    console.log('Filtered orders:', filteredOrders);
+    const filteredOrders = orders.filter(order => order.userId === user.email);
     setUserOrders(filteredOrders);
   }, [orders, user, navigate, authLoading]);
 
@@ -70,15 +64,6 @@ function MyOrders() {
       <p className="orders-description">
         Track your coffee orders and their status
       </p>
-
-      {/* Debug info */}
-      <div style={{ background: '#f0f0f0', padding: '1rem', marginBottom: '1rem', borderRadius: '8px', fontSize: '0.85rem' }}>
-        <strong>Debug Info:</strong><br />
-        Total orders in system: {orders.length}<br />
-        Your email: {user?.email}<br />
-        Your filtered orders: {userOrders.length}<br />
-        Orders data: {JSON.stringify(orders.map(o => ({ id: o.id.slice(-6), userId: o.userId })), null, 2)}
-      </div>
 
       {userOrders.length === 0 ? (
         <div className="no-orders">
