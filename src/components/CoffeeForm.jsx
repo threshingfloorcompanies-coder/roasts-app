@@ -8,9 +8,15 @@ function CoffeeForm({ coffee, onClose }) {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    price: '',
     image: '',
-    quantity: ''
+    sizes: [
+      { size: '4oz', price: '', quantity: '' },
+      { size: '8oz', price: '', quantity: '' },
+      { size: '12oz', price: '', quantity: '' },
+      { size: '16oz', price: '', quantity: '' }
+    ],
+    roasts: ['Medium'],
+    defaultRoast: 'Medium'
   });
   const [imageFile, setImageFile] = useState(null);
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -21,9 +27,15 @@ function CoffeeForm({ coffee, onClose }) {
       setFormData({
         name: coffee.name,
         description: coffee.description,
-        price: coffee.price.toString(),
         image: coffee.image,
-        quantity: coffee.quantity?.toString() || '0'
+        sizes: coffee.sizes || [
+          { size: '4oz', price: '', quantity: '' },
+          { size: '8oz', price: '', quantity: '' },
+          { size: '12oz', price: '', quantity: '' },
+          { size: '16oz', price: '', quantity: '' }
+        ],
+        roasts: coffee.roasts || ['Medium'],
+        defaultRoast: coffee.defaultRoast || 'Medium'
       });
     }
   }, [coffee]);
@@ -32,6 +44,30 @@ function CoffeeForm({ coffee, onClose }) {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
+    });
+  };
+
+  const handleSizeChange = (index, field, value) => {
+    const newSizes = [...formData.sizes];
+    newSizes[index][field] = value;
+    setFormData({
+      ...formData,
+      sizes: newSizes
+    });
+  };
+
+  const handleRoastToggle = (roast) => {
+    const newRoasts = formData.roasts.includes(roast)
+      ? formData.roasts.filter(r => r !== roast)
+      : [...formData.roasts, roast];
+
+    setFormData({
+      ...formData,
+      roasts: newRoasts,
+      // If default roast is unchecked, reset to first available
+      defaultRoast: newRoasts.includes(formData.defaultRoast)
+        ? formData.defaultRoast
+        : newRoasts[0] || 'Medium'
     });
   };
 
@@ -107,10 +143,16 @@ function CoffeeForm({ coffee, onClose }) {
       const imageUrl = await uploadToImgBB();
 
       const coffeeData = {
-        ...formData,
+        name: formData.name,
+        description: formData.description,
         image: imageUrl,
-        price: parseFloat(formData.price),
-        quantity: parseInt(formData.quantity) || 0
+        sizes: formData.sizes.map(size => ({
+          size: size.size,
+          price: parseFloat(size.price) || 0,
+          quantity: parseInt(size.quantity) || 0
+        })),
+        roasts: formData.roasts,
+        defaultRoast: formData.defaultRoast
       };
 
       if (coffee) {
@@ -158,31 +200,60 @@ function CoffeeForm({ coffee, onClose }) {
             />
           </div>
           <div className="form-group">
-            <label htmlFor="price">Price ($)</label>
-            <input
-              type="number"
-              id="price"
-              name="price"
-              value={formData.price}
-              onChange={handleChange}
-              required
-              step="0.01"
-              min="0"
-              placeholder="e.g., 4.50"
-            />
+            <label>Bag Sizes & Pricing</label>
+            <div className="sizes-grid">
+              {formData.sizes.map((sizeOption, index) => (
+                <div key={sizeOption.size} className="size-row">
+                  <span className="size-label">{sizeOption.size}</span>
+                  <input
+                    type="number"
+                    placeholder="Price"
+                    value={sizeOption.price}
+                    onChange={(e) => handleSizeChange(index, 'price', e.target.value)}
+                    step="0.01"
+                    min="0"
+                    required
+                  />
+                  <input
+                    type="number"
+                    placeholder="Quantity"
+                    value={sizeOption.quantity}
+                    onChange={(e) => handleSizeChange(index, 'quantity', e.target.value)}
+                    min="0"
+                    required
+                  />
+                </div>
+              ))}
+            </div>
           </div>
           <div className="form-group">
-            <label htmlFor="quantity">Quantity Available</label>
-            <input
-              type="number"
-              id="quantity"
-              name="quantity"
-              value={formData.quantity}
+            <label>Available Roasts</label>
+            <div className="roasts-options">
+              {['Light', 'Medium', 'Dark'].map(roast => (
+                <label key={roast} className="roast-checkbox">
+                  <input
+                    type="checkbox"
+                    checked={formData.roasts.includes(roast)}
+                    onChange={() => handleRoastToggle(roast)}
+                  />
+                  {roast}
+                </label>
+              ))}
+            </div>
+          </div>
+          <div className="form-group">
+            <label htmlFor="defaultRoast">Default Roast</label>
+            <select
+              id="defaultRoast"
+              name="defaultRoast"
+              value={formData.defaultRoast}
               onChange={handleChange}
               required
-              min="0"
-              placeholder="e.g., 10"
-            />
+            >
+              {formData.roasts.map(roast => (
+                <option key={roast} value={roast}>{roast}</option>
+              ))}
+            </select>
           </div>
           <div className="form-group">
             <label htmlFor="imageFile">Upload Image</label>

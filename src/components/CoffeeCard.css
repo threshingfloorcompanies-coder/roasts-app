@@ -91,6 +91,53 @@
   font-weight: 400;
 }
 
+.coffee-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.option-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.option-group label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.size-select,
+.roast-select {
+  padding: 0.65rem 0.85rem;
+  border: 2px solid var(--cream);
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-family: var(--font-body);
+  background-color: var(--light-cream);
+  color: var(--text-dark);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  font-weight: 500;
+}
+
+.size-select:hover,
+.roast-select:hover {
+  border-color: var(--accent-gold);
+  background-color: var(--cream);
+}
+
+.size-select:focus,
+.roast-select:focus {
+  outline: none;
+  border-color: var(--accent-gold);
+  background-color: var(--white);
+  box-shadow: 0 0 0 3px rgba(212, 165, 116, 0.15);
+}
+
 .coffee-quantity {
   margin-top: 0.75rem;
   padding: 0.5rem 0;

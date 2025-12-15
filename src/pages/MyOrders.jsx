@@ -93,7 +93,15 @@ function MyOrders() {
                 <h3>Items:</h3>
                 {order.items.map((item, idx) => (
                   <div key={idx} className="order-item">
-                    <span className="item-name">{item.name}</span>
+                    <div className="item-details">
+                      <span className="item-name">{item.name}</span>
+                      {(item.size || item.roast) && (
+                        <div className="item-options">
+                          {item.size && <span className="item-option-badge">{item.size}</span>}
+                          {item.roast && <span className="item-option-badge">{item.roast} Roast</span>}
+                        </div>
+                      )}
+                    </div>
                     <span className="item-quantity">x{item.quantity}</span>
                     <span className="item-price">${(item.price * item.quantity).toFixed(2)}</span>
                   </div>

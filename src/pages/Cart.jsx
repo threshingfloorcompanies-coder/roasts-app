@@ -29,13 +29,14 @@ function Cart() {
   });
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleQuantityChange = (id, newQuantity) => {
-    const item = cartItems.find(i => i.id === id);
-    if (newQuantity > item.quantity) {
-      alert(`Only ${item.quantity} bags available`);
+  const handleQuantityChange = (cartItemId, newQuantity) => {
+    const item = cartItems.find(i => i.cartItemId === cartItemId);
+    const availableQuantity = item.selectedSize?.quantity || item.quantity;
+    if (newQuantity > availableQuantity) {
+      alert(`Only ${availableQuantity} bags available`);
       return;
     }
-    updateQuantity(id, newQuantity);
+    updateQuantity(cartItemId, newQuantity);
   };
 
   const handlePlaceOrder = async () => {
@@ -74,7 +75,9 @@ function Cart() {
         items: cartItems.map(item => ({
           id: item.id,
           name: item.name,
-          price: item.price,
+          price: item.selectedSize?.price || item.price,
+          size: item.selectedSize?.size || 'N/A',
+          roast: item.selectedRoast || 'Medium',
           quantity: item.cartQuantity
         })),
         total: getTotalPrice(),
@@ -131,30 +134,42 @@ function Cart() {
       <div className="cart-content">
         <div className="cart-items">
           <h2>Items</h2>
-          {cartItems.map(item => (
-            <div key={item.id} className="cart-item">
-              <img src={item.image} alt={item.name} className="cart-item-image" />
-              <div className="cart-item-details">
-                <h3>{item.name}</h3>
-                <p className="cart-item-price">${item.price.toFixed(2)} per bag</p>
-                <div className="cart-item-quantity">
-                  <label>Quantity:</label>
-                  <input
-                    type="number"
-                    min="1"
-                    max={item.quantity}
-                    value={item.cartQuantity}
-                    onChange={(e) => handleQuantityChange(item.id, parseInt(e.target.value))}
-                  />
-                  <span className="available-stock">{item.quantity} available</span>
+          {cartItems.map(item => {
+            const itemPrice = item.selectedSize?.price || item.price;
+            const availableQty = item.selectedSize?.quantity || item.quantity;
+            return (
+              <div key={item.cartItemId} className="cart-item">
+                <img src={item.image} alt={item.name} className="cart-item-image" />
+                <div className="cart-item-details">
+                  <h3>{item.name}</h3>
+                  {item.selectedSize && (
+                    <div className="cart-item-options">
+                      <span className="cart-option-badge">Size: {item.selectedSize.size}</span>
+                      {item.selectedRoast && (
+                        <span className="cart-option-badge">Roast: {item.selectedRoast}</span>
+                      )}
+                    </div>
+                  )}
+                  <p className="cart-item-price">${itemPrice.toFixed(2)} per bag</p>
+                  <div className="cart-item-quantity">
+                    <label>Quantity:</label>
+                    <input
+                      type="number"
+                      min="1"
+                      max={availableQty}
+                      value={item.cartQuantity}
+                      onChange={(e) => handleQuantityChange(item.cartItemId, parseInt(e.target.value))}
+                    />
+                    <span className="available-stock">{availableQty} available</span>
+                  </div>
+                </div>
+                <div className="cart-item-total">
+                  <p>${(itemPrice * item.cartQuantity).toFixed(2)}</p>
+                  <button onClick={() => removeFromCart(item.cartItemId)} className="remove-btn">Remove</button>
                 </div>
               </div>
-              <div className="cart-item-total">
-                <p>${(item.price * item.cartQuantity).toFixed(2)}</p>
-                <button onClick={() => removeFromCart(item.id)} className="remove-btn">Remove</button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         <div className="checkout-section">

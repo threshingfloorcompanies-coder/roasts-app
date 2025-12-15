@@ -19,7 +19,20 @@ function AdminOrders() {
       // Decrement quantity for each item in the order
       for (const item of order.items) {
         const coffee = coffees.find(c => c.id === item.id);
-        if (coffee) {
+        if (coffee && coffee.sizes) {
+          // Update quantity for specific size
+          const updatedSizes = coffee.sizes.map(size => {
+            if (size.size === item.size) {
+              return {
+                ...size,
+                quantity: Math.max(0, size.quantity - item.quantity)
+              };
+            }
+            return size;
+          });
+          await updateCoffee(coffee.id, { ...coffee, sizes: updatedSizes });
+        } else if (coffee) {
+          // Fallback for old products without sizes
           const newQuantity = (coffee.quantity || 0) - item.quantity;
           await updateCoffee(coffee.id, { ...coffee, quantity: Math.max(0, newQuantity) });
         }
@@ -127,9 +140,17 @@ function AdminOrders() {
                 <h4>Items:</h4>
                 {order.items.map((item, index) => (
                   <div key={index} className="order-item">
-                    <span>{item.name}</span>
-                    <span>x{item.quantity}</span>
-                    <span>${(item.price * item.quantity).toFixed(2)}</span>
+                    <div className="order-item-details">
+                      <span className="item-name">{item.name}</span>
+                      {(item.size || item.roast) && (
+                        <div className="item-options">
+                          {item.size && <span className="item-option-badge">{item.size}</span>}
+                          {item.roast && <span className="item-option-badge">{item.roast} Roast</span>}
+                        </div>
+                      )}
+                    </div>
+                    <span className="item-quantity">x{item.quantity}</span>
+                    <span className="item-price">${(item.price * item.quantity).toFixed(2)}</span>
                   </div>
                 ))}
               </div>

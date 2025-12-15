@@ -10,6 +10,11 @@ export const useCart = () => {
   return context;
 };
 
+// Helper function to create unique cart item ID
+const getCartItemId = (coffeeId, size, roast) => {
+  return `${coffeeId}_${size}_${roast}`;
+};
+
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState(() => {
     const saved = localStorage.getItem('cart');
@@ -34,32 +39,43 @@ export const CartProvider = ({ children }) => {
     }
   }, [cartItems]);
 
-  const addToCart = (coffee) => {
+  const addToCart = (coffee, selectedSize, selectedRoast) => {
     setCartItems(prevItems => {
-      const existingItem = prevItems.find(item => item.id === coffee.id);
+      const cartItemId = getCartItemId(coffee.id, selectedSize?.size, selectedRoast);
+
+      // Find existing item with same coffee, size, and roast
+      const existingItem = prevItems.find(item => item.cartItemId === cartItemId);
+
       if (existingItem) {
         return prevItems.map(item =>
-          item.id === coffee.id
+          item.cartItemId === cartItemId
             ? { ...item, cartQuantity: item.cartQuantity + 1 }
             : item
         );
       }
-      return [...prevItems, { ...coffee, cartQuantity: 1 }];
+
+      return [...prevItems, {
+        ...coffee,
+        cartItemId,
+        selectedSize,
+        selectedRoast,
+        cartQuantity: 1
+      }];
     });
   };
 
-  const removeFromCart = (id) => {
-    setCartItems(prevItems => prevItems.filter(item => item.id !== id));
+  const removeFromCart = (cartItemId) => {
+    setCartItems(prevItems => prevItems.filter(item => item.cartItemId !== cartItemId));
   };
 
-  const updateQuantity = (id, quantity) => {
+  const updateQuantity = (cartItemId, quantity) => {
     if (quantity <= 0) {
-      removeFromCart(id);
+      removeFromCart(cartItemId);
       return;
     }
     setCartItems(prevItems =>
       prevItems.map(item =>
-        item.id === id ? { ...item, cartQuantity: quantity } : item
+        item.cartItemId === cartItemId ? { ...item, cartQuantity: quantity } : item
       )
     );
   };
@@ -71,7 +87,10 @@ export const CartProvider = ({ children }) => {
   };
 
   const getTotalPrice = () => {
-    return cartItems.reduce((total, item) => total + (item.price * item.cartQuantity), 0);
+    return cartItems.reduce((total, item) => {
+      const price = item.selectedSize?.price || item.price || 0;
+      return total + (price * item.cartQuantity);
+    }, 0);
   };
 
   const getTotalItems = () => {

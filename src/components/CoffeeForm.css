@@ -215,6 +215,90 @@
   transform: translateY(0);
 }
 
+.sizes-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.size-row {
+  display: grid;
+  grid-template-columns: 60px 1fr 1fr;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.size-label {
+  font-weight: 600;
+  color: var(--text-dark);
+  font-size: 0.95rem;
+}
+
+.size-row input {
+  padding: 0.75rem;
+  border: 2px solid var(--cream);
+  border-radius: 10px;
+  font-size: 0.95rem;
+  background-color: var(--light-cream);
+  transition: all var(--transition-normal);
+}
+
+.size-row input:focus {
+  outline: none;
+  border-color: var(--accent-gold);
+  background-color: var(--white);
+  box-shadow: 0 0 0 3px rgba(212, 165, 116, 0.1);
+}
+
+.roasts-options {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.roast-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-weight: 500;
+  color: var(--text-dark);
+  padding: 0.5rem 1rem;
+  background-color: var(--light-cream);
+  border-radius: 10px;
+  transition: all var(--transition-normal);
+}
+
+.roast-checkbox:hover {
+  background-color: var(--cream);
+}
+
+.roast-checkbox input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: var(--accent-gold);
+}
+
+.coffee-form .form-group select {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 2px solid var(--cream);
+  border-radius: 12px;
+  font-size: 1rem;
+  font-family: var(--font-body);
+  transition: all var(--transition-normal);
+  background-color: var(--light-cream);
+  cursor: pointer;
+}
+
+.coffee-form .form-group select:focus {
+  outline: none;
+  border-color: var(--accent-gold);
+  background-color: var(--white);
+  box-shadow: 0 0 0 3px rgba(212, 165, 116, 0.1);
+}
+
 @media (max-width: 480px) {
   .modal-content {
     max-height: 95vh;
@@ -241,5 +325,14 @@
   .cancel-btn,
   .submit-btn {
     width: 100%;
+  }
+
+  .size-row {
+    grid-template-columns: 50px 1fr 1fr;
+    gap: 0.5rem;
+  }
+
+  .roasts-options {
+    gap: 1rem;
   }
 }
